@@ -1,9 +1,9 @@
 import random
 
 
-# Noise token class
-class NoiseToken():
-    def __init__(self, totalSupply=1e9, coinValue=1):
+# Noise coin class
+class NoiseCoin():
+    def __init__(self, totalSupply=1e6, coinValue=1):
         # Total available supply
         self.totalSupply = totalSupply
         # Coin value
@@ -11,16 +11,22 @@ class NoiseToken():
         # Maximum fraction of total supply that may be minted/burnt 
         self.maxFraction = 0.01
         # Bank address to store unminted tokens
-        self.bank = Address("bank")
+        self.bank = Address(self, "bank", balance=totalSupply)
         # Eater address to store burned tokens
-        self.eater = Address("eater")
+        self.eater = Address(self, "eater")
+
+        # Dict with address number -> address
+        self.addressNumberDict = dict()
+        # Dict with address number -> address balance
+        self.addressNumberBalance = dict()
 
 
 # Initialise a new address
 class Address():
-    def __init__(self, name):
+    def __init__(self, coin:NoiseCoin, name:str, balance=0):
+        self.coin = coin
         self.name = name
-        self.balance = 0
+        self.balance = balance
 
 
 # ======================================================== #
@@ -49,15 +55,15 @@ def ProcessNoiseValue(noiseValue):
         MintTokens()
 
 
-def BurnTokens(token:NoiseToken, amount):
-    maxAmount = token.totalSupply * token.maxFraction
+def BurnTokens(coin:NoiseCoin, amount):
+    maxAmount = coin.totalSupply * coin.maxFraction
     amount = maxAmount * GetNoiseValue()
-    token.totalSupply -= amount
-    Transfer(token.bank, token.eater, amount) 
+    coin.totalSupply -= amount
+    Transfer(coin.bank, coin.eater, amount) 
 
-def MintTokens(token:NoiseToken, amount):
-    maxAmount = token.totalSupply * token.maxFraction
+def MintTokens(coin:NoiseCoin, amount):
+    maxAmount = coin.totalSupply * coin.maxFraction
     amount = maxAmount * GetNoiseValue()
-    token.totalSupply += amount
+    coin.totalSupply += amount
 
 
